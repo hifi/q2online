@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace Launcher
 {
@@ -30,10 +31,7 @@ namespace Launcher
                 }
             };
 
-            new Thread(delegate() {
-                Application.EnableVisualStyles();
-                Application.Run();
-            }).Start();
+            Application.EnableVisualStyles();
 
             List<Package> packages = new List<Package>();
 
@@ -45,17 +43,11 @@ namespace Launcher
             packages.Add(new Package("action-windows", null));
             packages.Add(new Package("action-linux", null));
 
-            List<Archive> archives;
-
-            using (UpdateChecker uc = new UpdateChecker(packages))
-            {
-                archives = uc.Run();
-            }
+            var lw = new LoadingWindow();
+            var archives = lw.Run(packages);
 
             Updater u = new Updater(archives);
             u.Run();
-
-            Application.Exit();
         }
     }
 }

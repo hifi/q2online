@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace Launcher
 {
@@ -12,31 +14,12 @@ namespace Launcher
         protected StringFormat _format;
         protected String _status;
 
-        public string Status
+        public LoadingWindow()
         {
-            get { return _status; }
-            set {
-                _status = value;
-                Console.WriteLine(_status);
-
-                Invoke((MethodInvoker)delegate() {
-                    Show();
-                    Refresh();
-                });
-            }
-        }
-
-        public static LoadingWindow Create()
-        {
-            return new LoadingWindow(Configuration.Instance.Name, Configuration.Instance.Background, Configuration.Instance.Icon);
-        }
-
-        public LoadingWindow (string title, Image image, Icon icon)
-        {
-            Text = title;
-            Size = new Size(image.Width, image.Height);
-            BackgroundImage = image;
-            Icon = icon;
+            Text = Configuration.Instance.Name;
+            BackgroundImage = Configuration.Instance.Background;
+            Size = new Size(BackgroundImage.Width, BackgroundImage.Height);
+            Icon = Configuration.Instance.Icon;
             FormBorderStyle = FormBorderStyle.None;
             MaximizeBox = false;
             MinimizeBox = false;
@@ -49,6 +32,36 @@ namespace Launcher
             _format.Alignment = StringAlignment.Far;
             _format.LineAlignment = StringAlignment.Far;
             CenterToScreen();
+        }
+
+        public List<Archive> Run(List<Package> packages)
+        {
+            List<Archive> archives = null;
+
+            var worker = new BackgroundWorker();
+            worker.WorkerReportsProgress = true;
+            worker.ProgressChanged += (object sender, ProgressChangedEventArgs e) => {
+                _status = e.UserState as string;
+                this.Invalidate();
+            };
+
+            var uc = new UpdateChecker(packages);
+            uc.StatusChanged += (object sender, UpdateCheckerEventArgs e) => {
+                worker.ReportProgress(0, e.status);
+            };
+
+            worker.DoWork += (object sender, DoWorkEventArgs e) => {
+                archives = uc.Run();
+            };
+
+            worker.RunWorkerCompleted += (object sender, RunWorkerCompletedEventArgs e) => {
+                this.Close();
+            };
+
+            worker.RunWorkerAsync();
+            ShowDialog();
+
+            return archives;
         }
 
         protected override void OnPaint(PaintEventArgs e)

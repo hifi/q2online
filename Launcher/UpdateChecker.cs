@@ -2,24 +2,42 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.ComponentModel;
 
 namespace Launcher
 {
-    public class UpdateChecker : IDisposable
+    public class UpdateCheckerEventArgs : EventArgs
     {
-        protected LoadingWindow _lw;
+        public string status;
+
+        public UpdateCheckerEventArgs(string status)
+        {
+            this.status = status;
+        }
+    }
+
+    public class UpdateChecker
+    {
         private List<Package> _packages;
+
+        public delegate void StatusChangedEventHandler(object sender, UpdateCheckerEventArgs e);
+
+        public event StatusChangedEventHandler StatusChanged;
+
+        protected virtual void OnStatusChanged(UpdateCheckerEventArgs e)
+        {
+            if (StatusChanged != null)
+                StatusChanged(this, e);
+        }
 
         public UpdateChecker (List<Package> packages)
         {
             _packages = packages;
-            _lw = LoadingWindow.Create();
-            _lw.Visible = true;
         }
 
         public List<Archive> Run()
         {
-            _lw.Status =  "Loading...";
+            OnStatusChanged(new UpdateCheckerEventArgs("Loading..."));
 
             List<Archive> allUpdates = new List<Archive>();
 
@@ -33,16 +51,16 @@ namespace Launcher
                     }
 
                     allUpdates.AddRange(updates);
-                } catch (Exception e) {
+                } catch (Exception ex) {
                     if (Configuration.Instance.FirstLaunch) {
-                        throw e;
+                        throw ex;
                     } else {
-                        Console.WriteLine("Ignored update exception: " + e + ": " + e.Message);
+                        Console.WriteLine("Ignored update exception: " + ex + ": " + ex.Message);
                     }
                 }
             }
 
-            _lw.Status = "Done!";
+            OnStatusChanged(new UpdateCheckerEventArgs("Done!"));
 
             return allUpdates;
         }
@@ -51,7 +69,7 @@ namespace Launcher
         {
             List<Archive> reinstall = new List<Archive>();
 
-            _lw.Status = "Checking updates for " + package.Name + "...";
+            OnStatusChanged(new UpdateCheckerEventArgs("Checking updates for " + package.Name + "..."));
 
             HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(package.Url);
             req.Timeout = Configuration.Instance.FirstLaunch ? 60000 : 2000;
@@ -64,7 +82,7 @@ namespace Launcher
                 using (MemoryStream ms = new MemoryStream())
                 using (Stream responseStream = resp.GetResponseStream())
                 {
-                    _lw.Status = "Calculating " + package.Name + " update size...";
+                    OnStatusChanged(new UpdateCheckerEventArgs("Calculating " + package.Name + " update size..."));
 
                     package.ETag = resp.Headers["ETag"];
 
@@ -100,17 +118,6 @@ namespace Launcher
                 throw;
             }
         }
-
-        #region IDisposable implementation
-
-        public void Dispose()
-        {
-            _lw.Visible = false;
-            _lw.Close();
-            _lw.Dispose();
-        }
-
-        #endregion
     }
 }
 
