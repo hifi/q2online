@@ -35,6 +35,10 @@ namespace Launcher
             get { return _baseUrl; }
         }
 
+        public string InstallPath {
+            get { return _installPath; }
+        }
+
         public bool FirstLaunch {
             get { return true; }
         }
@@ -49,6 +53,15 @@ namespace Launcher
 
         public string NewsURL {
             get { return _newsUrl; }
+        }
+
+        // this is our best guess
+        public bool IsLinux {
+            get { return (int)Environment.OSVersion.Platform == 4; }
+        }
+
+        public bool IsMacOSX {
+            get { return (int)Environment.OSVersion.Platform == 6; }
         }
 
         private Configuration()
