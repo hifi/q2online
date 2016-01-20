@@ -12,25 +12,6 @@ namespace Launcher
     {
         public static void Main (string[] args)
         {
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, bargs) =>
-            {
-                String dllName = new AssemblyName(bargs.Name).Name + ".dll";
-                var assem = Assembly.GetExecutingAssembly();
-                String resourceName = null;
-                foreach (string res in assem.GetManifestResourceNames())
-                {
-                    if (res.EndsWith(dllName))
-                        resourceName = res;
-                }
-                if (resourceName == null) return null; // Not found, maybe another handler will find it
-                using (var stream = assem.GetManifestResourceStream(resourceName))
-                {
-                    Byte[] assemblyData = new Byte[stream.Length];
-                    stream.Read(assemblyData, 0, assemblyData.Length);
-                    return Assembly.Load(assemblyData);
-                }
-            };
-
             Application.EnableVisualStyles();
 
             List<Package> packages = new List<Package>();

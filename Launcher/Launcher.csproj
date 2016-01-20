@@ -47,6 +47,10 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="Updater.cs" />
     <Compile Include="PositionedStream.cs" />
+    <Compile Include="ZipStream\LimitStream.cs" />
+    <Compile Include="ZipStream\ZipInputStream.cs" />
+    <Compile Include="ZipStream\ZipStreamEntry.cs" />
+    <Compile Include="ZipStream\ZipStreamFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -54,17 +58,6 @@
       <DeployService-Deploy>True</DeployService-Deploy>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\header.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\ZipStream\bin\Release\ZipStream.dll">
-      <Link>Resources\ZipStream.dll</Link>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ZipStream\ZipStream.csproj">
-      <Project>{83831296-7BFC-4005-8F2C-424803C09273}</Project>
-      <Name>ZipStream</Name>
-    </ProjectReference>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
