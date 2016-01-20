@@ -47,6 +47,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="Updater.cs" />
     <Compile Include="PositionedStream.cs" />
+    <Compile Include="UpdateWindow.cs" />
     <Compile Include="ZipStream\LimitStream.cs" />
     <Compile Include="ZipStream\ZipInputStream.cs" />
     <Compile Include="ZipStream\ZipStreamEntry.cs" />

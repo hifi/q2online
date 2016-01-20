@@ -25,6 +25,7 @@ namespace Launcher
         private string _name;
         private string _installPath;
         private string _baseUrl;
+        private string _newsUrl;
 
         public string Name {
             get { return _name; }
@@ -46,11 +47,16 @@ namespace Launcher
             get { return new Icon(System.Reflection.Assembly.GetEntryAssembly().GetManifestResourceStream("Launcher.Resources.icon.ico")); }
         }
 
+        public string NewsURL {
+            get { return _newsUrl; }
+        }
+
         private Configuration()
         {
             _name = "Q2Online";
             _installPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + Path.DirectorySeparatorChar + "q2online";
             _baseUrl = "http://q2online.net/dist";
+            _newsUrl = "http://q2online.net/changelog/";
         }
 
         public string UrlTo(string file)

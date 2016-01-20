@@ -27,8 +27,8 @@ namespace Launcher
             var lw = new LoadingWindow();
             var archives = lw.Run(packages);
 
-            Updater u = new Updater(archives);
-            u.Run();
+            var uw = new UpdateWindow();
+            uw.Run(archives);
         }
     }
 }
