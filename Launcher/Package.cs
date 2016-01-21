@@ -27,10 +27,9 @@ namespace Launcher
             get { return _archives; }
         }
 
-        public Package (string name, string etag)
+        public Package (string name)
         {
             _name = name;
-            _etag = etag;
             _archives = new List<Archive>();
         }
 

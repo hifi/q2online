@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Drawing;
+using System.Configuration;
 
 namespace Launcher
 {
@@ -22,6 +23,8 @@ namespace Launcher
             }
         }
 
+        private System.Configuration.Configuration _config;
+        private bool _dirty;
         private string _name;
         private string _installPath;
         private string _baseUrl;
@@ -70,6 +73,10 @@ namespace Launcher
             _installPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + Path.DirectorySeparatorChar + "q2online";
             _baseUrl = "http://q2online.net/dist";
             _newsUrl = "http://q2online.net/changelog/";
+
+            ExeConfigurationFileMap configMap = new ExeConfigurationFileMap();
+            configMap.ExeConfigFilename = _installPath + Path.DirectorySeparatorChar + "version.xml";
+            _config = ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
         }
 
         public string UrlTo(string file)
@@ -80,6 +87,25 @@ namespace Launcher
         public string FilePath(string path)
         {
             return _installPath + Path.DirectorySeparatorChar + String.Join(Char.ToString(Path.DirectorySeparatorChar), path.Split(new char[]{'/'}));
+        }
+
+        public string GetETag(string package)
+        {
+            var kv = _config.AppSettings.Settings[package];
+            return kv == null ? null : kv.Value;
+        }
+
+        public void SetETag(string package, string etag)
+        {
+            if (GetETag(package) != etag)
+                _dirty = true;
+            _config.AppSettings.Settings.Add(package, etag);
+        }
+
+        public void Save()
+        {
+            if (_dirty)
+                _config.Save();
         }
     }
 }

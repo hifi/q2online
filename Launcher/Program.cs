@@ -18,38 +18,53 @@ namespace Launcher
             List<Package> packages = new List<Package>();
 
             // install everything now for aq2 target for testing
-            packages.Add(new Package("baseq2", null));
+            packages.Add(new Package("baseq2"));
 
             string game = "action";
 
             if (game != "baseq2")
-                packages.Add(new Package(game, null));
+                packages.Add(new Package(game));
 
             if (Configuration.Instance.IsLinux)
             {
-                packages.Add(new Package("client-linux", null));
-                packages.Add(new Package(game + "-linux", null));
+                packages.Add(new Package("client-linux"));
+                packages.Add(new Package(game + "-linux"));
             }
             else if (Configuration.Instance.IsMacOSX)
             {
-                packages.Add(new Package("client-darwin", null));
-                packages.Add(new Package(game + "-darwin", null));
+                packages.Add(new Package("client-darwin"));
+                packages.Add(new Package(game + "-darwin"));
             }
             else
             {
-                packages.Add(new Package("client-windows", null));
-                packages.Add(new Package(game + "-windows", null));
+                packages.Add(new Package("client-windows"));
+                packages.Add(new Package(game + "-windows"));
             }
+
+            // load package ETags from config
+            foreach (var package in packages)
+            {
+                package.ETag = Configuration.Instance.GetETag(package.Name);
+            }
+
 
             var lw = new LoadingWindow();
             var archives = lw.Run(packages);
 
-            if (archives.Count > 0)
+            if (archives != null && archives.Count > 0)
             {
                 var uw = new UpdateWindow();
                 if (!uw.Run(archives))
                     return;
+
             }
+
+            foreach (var package in packages)
+            {
+                Configuration.Instance.SetETag(package.Name, package.ETag);
+            }
+
+            Configuration.Instance.Save();
 
             // launching
             var exePath = Configuration.Instance.FilePath("q2pro.exe");
