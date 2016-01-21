@@ -10,6 +10,7 @@
     <RootNamespace>Launcher</RootNamespace>
     <AssemblyName>q2online</AssemblyName>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+    <Win32Icon>Resources\icon.ico</Win32Icon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
